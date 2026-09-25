@@ -1,0 +1,42 @@
+[
+  {
+    "file": "hero",
+    "label": "HERO",
+    "hidden": false
+  },
+  {
+    "file": "about",
+    "label": "ABOUT",
+    "hidden": false
+  },
+  {
+    "file": "themes",
+    "label": "THEMES",
+    "hidden": false
+  },
+  {
+    "file": "cfp",
+    "label": "CALL FOR PAPERS",
+    "hidden": true
+  },
+  {
+    "file": "speakers",
+    "label": "SPEAKERS",
+    "hidden": false
+  },
+  {
+    "file": "schedule",
+    "label": "SCHEDULE",
+    "hidden": true
+  },
+  {
+    "file": "organizers",
+    "label": "ORGANIZERS",
+    "hidden": false
+  },
+  {
+    "file": "sponsors",
+    "label": "SPONSORS / CTA",
+    "hidden": false
+  }
+]

@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BOLD AI</title>
+<meta name="description" content="An ICLR 2027 Workshop on brain-, body-, and physics-inspired machine learning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
+
+<style>
+  :root{
+    --ink:#070810;
+    --ink-2:#0b0d18;
+    --panel:rgba(15,18,32,0.55);
+    --panel-solid:#0e1120;
+    --line:rgba(130,150,190,0.14);
+    --line-strong:rgba(140,160,200,0.28);
+    --text:#e9ecf6;
+    --soft:#c7cbe0;
+    --muted:#9aa0bd;
+    --faint:#6b7191;
+    --cyan:#4fe3c1;
+    --cyan-dim:#2fae97;
+    --amber:#f6a15a;
+    --amber-dim:#c77c3f;
+    --violet:#8f7bff;
+    --card-bg:rgba(12,14,26,0.84);
+    --card-bg-hover:rgba(22,26,46,0.92);
+    --panel-bg:rgba(9,11,20,0.90);
+    --nav-bg:rgba(7,8,16,0.86);
+    --nav-solid:rgba(7,8,16,0.98);
+    --chip-bg:rgba(255,255,255,0.03);
+    --hover:rgba(255,255,255,0.06);
+    --badge-bg:rgba(7,8,16,0.80);
+    --scrim:rgba(7,8,16,0.86);
+    --maxw:1120px;
+    --gut:clamp(18px,4vw,44px);
+    --r:14px;
+    color-scheme:dark;
+  }
+  /* ---- light theme: explicit toggle, plus system-light unless dark is chosen ---- */
+  :root[data-theme="light"]{
+    --ink:#eef1f6; --ink-2:#e0e5ef; --panel-solid:#ffffff;
+    --line:rgba(24,34,64,0.12); --line-strong:rgba(24,34,64,0.24);
+    --text:#141824; --soft:#39435a; --muted:#515b73; --faint:#8791a6;
+    --cyan:#0e9e86; --cyan-dim:#0b7d6b; --amber:#b85f18; --amber-dim:#8f4a12; --violet:#5b46d6;
+    --card-bg:rgba(255,255,255,0.92); --card-bg-hover:rgba(255,255,255,0.98);
+    --panel-bg:rgba(248,250,253,0.90); --nav-bg:rgba(244,246,250,0.90); --nav-solid:rgba(244,246,250,0.99);
+    --chip-bg:rgba(20,30,60,0.04); --hover:rgba(20,30,60,0.07); --badge-bg:rgba(255,255,255,0.90); --scrim:rgba(240,243,247,0.88);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --ink:#eef1f6; --ink-2:#e0e5ef; --panel-solid:#ffffff;
+      --line:rgba(24,34,64,0.12); --line-strong:rgba(24,34,64,0.24);
+      --text:#141824; --soft:#39435a; --muted:#515b73; --faint:#8791a6;
+      --cyan:#0e9e86; --cyan-dim:#0b7d6b; --amber:#b85f18; --amber-dim:#8f4a12; --violet:#5b46d6;
+      --card-bg:rgba(255,255,255,0.74); --card-bg-hover:rgba(255,255,255,0.94);
+      --panel-bg:rgba(255,255,255,0.58); --nav-bg:rgba(244,246,250,0.80); --nav-solid:rgba(244,246,250,0.98);
+      --chip-bg:rgba(20,30,60,0.03); --hover:rgba(20,30,60,0.06); --badge-bg:rgba(255,255,255,0.74);
+      color-scheme:light;
+    }
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:300;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(120% 80% at 78% -10%, rgba(79,227,193,0.10), transparent 55%),
+      radial-gradient(90% 70% at 8% 8%, rgba(143,123,255,0.10), transparent 50%),
+      radial-gradient(120% 90% at 50% 120%, rgba(246,161,90,0.08), transparent 55%),
+      var(--ink);
+    pointer-events:none;
+  }
+
+  #swarm{
+    position:fixed; inset:0; z-index:-1;
+    width:100%; height:100%;
+    pointer-events:none;
+    opacity:.5;                 /* quiet backdrop, keeps text readable */
+  }
+  :root[data-theme="light"] #swarm{opacity:.42}
+  @media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) #swarm{opacity:.42} }
+
+  a{color:inherit}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding-inline:var(--gut)}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:var(--cyan);
+  }
+  .mono{font-family:"IBM Plex Mono",monospace}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:500; line-height:1.05; text-wrap:balance; margin:0}
+  p{margin:0}
+
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(14px);
+    background:var(--nav-bg);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-in{
+    max-width:1360px; margin:0 auto;
+    padding:13px var(--gut);
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; margin-right:auto; flex:none; white-space:nowrap}
+  .brand .glyph{width:26px; height:26px; flex:none}
+  .brand b{font-family:"Fraunces",serif; font-weight:600; font-size:clamp(11px,1.3vw,15px); letter-spacing:.01em}
+  .brand b .k{color:var(--amber); font-weight:700; font-size:clamp(22px,3vw,34px)}
+  .brand b .kai{color:var(--cyan); font-weight:700; font-size:clamp(22px,3vw,34px)}
+  .brandcol{display:block}
+  .brandcol b{display:inline-flex; align-items:baseline; white-space:pre}
+  .brandcol > span{display:block; white-space:nowrap}
+  .brand span{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; display:block; margin-top:1px}
+  nav.links{display:flex; gap:4px; flex-wrap:wrap}
+  nav.links a{
+    font-size:12px; text-decoration:none; color:var(--muted);
+    padding:5px 7px; border-radius:8px; transition:color .18s, background .18s;
+    white-space:nowrap;
+  }
+  nav.links{flex-wrap:nowrap}
+  nav.links a:hover{color:var(--text); background:var(--hover)}
+  .nav-cta{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.04em;
+    text-decoration:none; color:var(--ink); background:var(--cyan);
+    padding:8px 14px; border-radius:8px; font-weight:600; white-space:nowrap;
+    transition:transform .18s, box-shadow .18s;
+  }
+  .nav-cta:hover{transform:translateY(-1px); box-shadow:0 8px 24px rgba(79,227,193,0.28)}
+  .theme-toggle,.replay-btn{display:inline-flex; align-items:center; justify-content:center;
+    width:38px; height:38px; flex:none; border:1px solid var(--line-strong); border-radius:9px;
+    background:transparent; color:var(--text); cursor:pointer;
+    transition:border-color .18s, color .18s}
+  .theme-toggle:hover,.replay-btn:hover{border-color:var(--cyan); color:var(--cyan)}
+  .theme-toggle svg,.replay-btn svg{width:18px; height:18px}
+  .replay-btn:active svg{transform:rotate(-90deg); transition:transform .3s ease}
+  .theme-toggle .icon-sun{display:none}
+  :root[data-theme="light"] .theme-toggle .icon-sun{display:block}
+  :root[data-theme="light"] .theme-toggle .icon-moon{display:none}
+  .shuffle-toggle[aria-pressed="true"]{border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 0 1px var(--cyan) inset}
+  .menu-toggle{display:none}
+
+  .hero{
+    position:relative;
+    min-height:calc(100vh - 72px);
+    min-height:calc(100svh - 72px);
+    display:flex; flex-direction:column; justify-content:center;
+    padding-block:clamp(24px,5vh,56px);
+  }
+  .hero .eyebrow{margin-bottom:22px}
+  .hero h1{
+    font-size:clamp(46px,9vw,116px);
+    letter-spacing:-0.02em;
+    font-weight:500;
+  }
+  .hero h1 em{font-style:italic; color:var(--cyan)}
+  .hero .lede{
+    max-width:60ch; margin-top:26px;
+    font-size:clamp(16px,2.2vw,20px);
+    color:var(--soft); font-weight:300;
+  }
+  .slogan{
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:.34em;
+    margin-top:24px; font-family:"Fraunces",Georgia,serif; font-weight:600;
+    font-size:clamp(23px,4.2vw,42px); letter-spacing:-0.015em; line-height:1.08;
+  }
+  .slogan .s-lead{
+    font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:.42em;
+    text-transform:uppercase; letter-spacing:.24em; color:var(--muted);
+    transform:translateY(-0.12em);
+  }
+  .slogan .s-hi{color:var(--cyan)}
+  .slogan .s-over{
+    font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:.42em;
+    text-transform:uppercase; letter-spacing:.24em; color:var(--faint);
+    transform:translateY(-0.12em);
+  }
+  .slogan .s-lo{color:var(--soft); opacity:.62}
+
+  /* BOLD brandmark — big intro that shrinks to a heading, then cycles backronyms */
+  .boldmark{
+    display:grid; grid-template-columns:repeat(4,1fr); justify-items:start; align-items:baseline;
+    width:100%; max-width:1000px;
+    font-family:"Fraunces",Georgia,serif; font-size:clamp(24px,6vw,76px);
+    line-height:1.04; margin:0;
+    transform-origin:center center; will-change:transform;
+  }
+  /* each letter sits in a fixed column, so B O L D never move; the tail grows out of the letter */
+  .boldmark .lg{display:inline-flex; align-items:baseline; white-space:nowrap; min-width:0}
+  .boldmark .cap{font-size:1em; font-weight:500; color:var(--amber); letter-spacing:-0.01em}
+  .boldmark .tail{
+    font-size:.32em; font-weight:400; color:var(--soft);
+    max-width:0; opacity:0; white-space:nowrap; overflow:hidden;
+    transition:max-width .8s cubic-bezier(.4,.7,.2,1), opacity .55s ease;
+  }
+  .boldmark.expanded .tail{max-width:20ch; opacity:1}
+  .boldmark .ai{color:var(--cyan)}
+  @media (prefers-reduced-motion:reduce){
+    .boldmark .tail{transition:none}
+  }
+  /* during the intro, only the BOLD mark shows */
+  #top.intro .hero .eyebrow,
+  #top.intro .hero .slogan,
+  #top.intro .hero .lede,
+  #top.intro .hero .hero-cta,
+  #top.intro .hero .factbar{opacity:0 !important}
+  .hero-cta{display:flex; gap:14px; flex-wrap:wrap; margin-top:34px}
+  .btn{
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:"IBM Plex Mono",monospace; font-size:13.5px; letter-spacing:.03em;
+    text-decoration:none; padding:12px 20px; border-radius:10px; font-weight:600;
+    transition:transform .18s, box-shadow .18s, background .18s, border-color .18s;
+  }
+  .btn-primary{background:var(--cyan); color:var(--ink)}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 12px 30px rgba(79,227,193,0.3)}
+  .btn-ghost{border:1px solid var(--line-strong); color:var(--text)}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan)}
+
+  .factbar{
+    display:flex; flex-wrap:wrap; gap:8px 34px; margin-top:52px;
+    padding-top:26px; border-top:1px solid var(--line);
+  }
+  .factbar .fact{display:flex; flex-direction:column; gap:2px}
+  .factbar .k{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint)}
+  .factbar .v{font-size:15.5px; color:var(--text)}
+  .factbar .v b{font-weight:600; color:var(--cyan)}
+
+  section{position:relative}
+  .band{padding-block:clamp(64px,10vw,116px)}
+  .band-panel{
+    background:var(--panel-bg);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(6px);
+  }
+  .sec-head{max-width:70ch; margin-bottom:clamp(36px,6vw,60px); position:relative}
+  .sec-head > *{position:relative; z-index:1}
+  .sec-head::before{content:""; position:absolute; inset:-22px -16px; z-index:0; pointer-events:none;
+    background:var(--scrim); border-radius:20px;
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(102deg,#000 0%,#000 56%,transparent 100%);
+    mask-image:linear-gradient(102deg,#000 0%,#000 56%,transparent 100%);}
+  .sec-head .eyebrow{display:block; margin-bottom:16px}
+  .sec-head h2{font-size:clamp(30px,5vw,50px); letter-spacing:-0.015em}
+  .sec-head p{margin-top:18px; color:var(--muted); font-size:clamp(15px,1.8vw,17.5px); max-width:62ch}
+
+  .statement{
+    font-family:"Fraunces",serif; font-weight:400;
+    font-size:clamp(22px,3.4vw,34px); line-height:1.32; letter-spacing:-0.01em;
+    max-width:24ch; color:var(--text);
+  }
+  .about-grid{display:grid; grid-template-columns:1.15fr 1fr; gap:clamp(30px,5vw,66px); align-items:start}
+  .about-body p + p{margin-top:16px}
+  .about-body p{color:var(--soft); font-size:16.5px}
+  .about-body .pull{color:var(--amber); font-weight:700; font-family:"Fraunces",serif}
+
+  .themes{display:grid; grid-template-columns:repeat(2,1fr); gap:16px}
+  .theme{
+    position:relative; overflow:hidden;
+    border:1px solid var(--line); border-radius:var(--r);
+    padding:26px 26px 28px;
+    background:var(--card-bg);
+    transition:border-color .22s, transform .22s, background .22s;
+  }
+  .theme:hover{border-color:var(--line-strong); transform:translateY(-3px); background:var(--card-bg-hover)}
+  .theme::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(var(--tc,var(--cyan)), transparent);
+    opacity:.75;
+  }
+  .theme .code{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.16em; color:var(--tc,var(--cyan)); font-weight:500}
+  .theme h3{font-size:22px; margin-top:9px; font-weight:600; letter-spacing:-0.01em}
+  .theme .tags{display:flex; flex-wrap:wrap; gap:7px; margin-top:16px}
+  .theme .tag{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.02em;
+    color:var(--soft); border:1px solid var(--line); border-radius:999px;
+    padding:4px 10px; background:var(--chip-bg);
+  }
+  .theme.wide{grid-column:1 / -1}
+
+  .cfp-grid{display:grid; grid-template-columns:1.5fr 1fr; gap:clamp(26px,4vw,52px); align-items:start}
+  .tracks{display:flex; flex-direction:column; gap:14px}
+  .track{
+    display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:baseline;
+    border:1px solid var(--line); border-radius:12px; padding:20px 22px;
+    background:var(--card-bg);
+  }
+  .track .no{font-family:"Fraunces",serif; font-size:22px; color:var(--cyan); font-weight:600}
+  .track h3{font-size:19px; font-weight:600}
+  .track p{color:var(--muted); font-size:14.5px; margin-top:5px; max-width:52ch}
+  .track .len{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--amber); white-space:nowrap; text-align:right}
+  .track .len span{display:block; color:var(--faint); letter-spacing:.1em; font-size:10px; text-transform:uppercase; margin-bottom:3px}
+
+  .timeline{border:1px solid var(--line); border-radius:14px; padding:8px 22px 14px; background:var(--card-bg)}
+  .timeline h3{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); font-weight:500; padding:16px 0 6px}
+  .tl{display:flex; gap:14px; padding:13px 0; border-top:1px solid var(--line)}
+  .tl:first-of-type{border-top:none}
+  .tl .dot{width:9px; height:9px; border-radius:50%; margin-top:6px; flex:none; background:var(--muted)}
+  .tl.hot .dot{background:var(--cyan); box-shadow:0 0 0 4px rgba(79,227,193,0.16)}
+  .tl .when{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--text); font-weight:500}
+  .tl .what{color:var(--muted); font-size:13px; margin-top:1px}
+  .tl.hot .what{color:var(--cyan)}
+  .note{margin-top:16px; font-size:12.5px; color:var(--faint); font-family:"IBM Plex Mono",monospace; letter-spacing:.02em}
+  .est{font-family:"IBM Plex Mono",monospace; font-size:.68em; font-weight:500; text-transform:uppercase; letter-spacing:.08em; color:var(--faint); margin-left:.5em}
+
+  .people{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+  .person{
+    border:1px solid var(--line); border-radius:var(--r); padding:22px;
+    background:var(--card-bg); text-align:left;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .avatar{
+    width:52px; height:52px; border-radius:50%; margin-bottom:12px;
+    background:conic-gradient(from 210deg, var(--cyan), var(--violet), var(--amber), var(--cyan));
+    opacity:.85; position:relative;
+  }
+  .avatar::after{content:""; position:absolute; inset:5px; border-radius:50%; background:var(--ink-2)}
+  .person .role{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan)}
+  .person .name{font-family:"Fraunces",serif; font-size:18px; font-weight:600}
+  .person .aff{color:var(--muted); font-size:13.5px}
+  .person.tba .name{color:var(--faint)}
+
+  .sched{border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--card-bg)}
+  .row{display:grid; grid-template-columns:150px 1fr; gap:18px; padding:16px 24px; border-top:1px solid var(--line); align-items:baseline}
+  .row:first-child{border-top:none}
+  .row .time{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--amber); font-variant-numeric:tabular-nums}
+  .row .item b{font-weight:600; font-size:16px}
+  .row .item p{color:var(--muted); font-size:13.5px; margin-top:2px}
+  .row.feature{background:linear-gradient(90deg, rgba(79,227,193,0.07), transparent)}
+
+  .cta-box{
+    border:1px solid var(--line-strong); border-radius:18px;
+    padding:clamp(30px,5vw,54px); text-align:center;
+    background:radial-gradient(120% 140% at 50% 0%, rgba(79,227,193,0.10), transparent 60%), var(--card-bg);
+  }
+  .cta-box h2{font-size:clamp(26px,4vw,40px)}
+  .cta-box p{max-width:56ch; margin:16px auto 0; color:var(--muted)}
+  .cta-box .hero-cta{justify-content:center}
+
+  footer{border-top:1px solid var(--line); padding-block:44px; margin-top:0; background:var(--panel-bg)}
+  .foot{display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between; align-items:center}
+  .foot .brand b{font-size:16px}
+  .foot small{color:var(--faint); font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.03em}
+  .foot .flinks{display:flex; gap:20px; flex-wrap:wrap}
+  .foot .flinks a{color:var(--muted); text-decoration:none; font-size:13.5px}
+  .foot .flinks a:hover{color:var(--cyan)}
+
+  /* cursor-field indicator */
+  /* the Speakers cell hides the OS pointer so the drawn mouse is the cursor */
+  #speakers{cursor:none}
+  /* the Organizers cell is draggable (crystal lattice) — don't select text while plucking */
+  #organizers{-webkit-user-select:none; user-select:none; cursor:grab}
+  #organizers:active{cursor:grabbing}
+  .mode-badge{
+    position:fixed; left:16px; bottom:14px; z-index:40; pointer-events:none;
+    font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--muted); background:var(--badge-bg); border:1px solid var(--line);
+    padding:6px 12px; border-radius:999px; backdrop-filter:blur(6px);
+    display:flex; gap:9px; align-items:center; opacity:0; transition:opacity .45s;
+  }
+  .mode-badge.show{opacity:.9}
+  .mode-badge i{width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 9px var(--cyan); transition:background .3s, box-shadow .3s}
+  .mode-badge b{color:var(--text); font-weight:600}
+
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1; transform:none}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .reveal{opacity:1; transform:none; transition:none}
+    .mode-badge{display:none}
+  }
+
+  @media (max-width:1080px){
+    .about-grid,.cfp-grid{grid-template-columns:1fr}
+    .themes{grid-template-columns:1fr}
+    .people{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:1260px){
+    nav.links{display:none; position:absolute; top:100%; left:0; right:0;
+      flex-direction:column; gap:2px; padding:12px var(--gut) 18px;
+      background:var(--nav-solid); border-bottom:1px solid var(--line)}
+    nav.links.open{display:flex}
+    nav.links a{padding:10px 8px; font-size:15px}
+    .menu-toggle{display:inline-flex; align-items:center; justify-content:center;
+      width:40px; height:38px; border:1px solid var(--line-strong); border-radius:9px;
+      background:transparent; color:var(--text); cursor:pointer; order:3}
+  }
+  /* phones/small: banner shows the compact BOLD AI acronym, not the full title */
+  @media (max-width:760px){
+    .brand b .exp{display:none}
+    .brand b{gap:.12em}
+    .brand b .kai{margin-left:.34em}
+    .brand b .k, .brand b .kai{font-size:clamp(20px,6vw,30px)}
+  }
+  @media (max-width:560px){
+    .track{grid-template-columns:auto 1fr; }
+    .track .len{grid-column:2; text-align:left; margin-top:8px}
+    .row{grid-template-columns:1fr; gap:5px}
+    .factbar{gap:16px 28px}
+    .nav-cta{display:none}
+    .mode-badge{display:none}
+    .replay-btn{display:none}
+    .shuffle-toggle{display:none}
+    .nav-in{gap:8px}
+    .brand span{font-size:9px; letter-spacing:.1em}
+    .people{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+
+<canvas id="swarm" aria-hidden="true"></canvas>
+<div class="mode-badge" id="modeBadge" aria-hidden="true"><i></i>cursor field · <b id="modeName">swarm</b></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" aria-label="BOLD AI — Beyond the Orthodox Learning &amp; Design of AI, home">
+      <svg class="glyph" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="14.2" stroke="#4fe3c1" stroke-opacity="0.35"/>
+        <circle cx="16" cy="7" r="2.1" fill="#4fe3c1"/>
+        <circle cx="24" cy="13" r="1.7" fill="#f6a15a"/>
+        <circle cx="21" cy="23" r="1.7" fill="#8f7bff"/>
+        <circle cx="9" cy="22" r="1.7" fill="#4fe3c1"/>
+        <circle cx="7" cy="12" r="1.7" fill="#f6a15a"/>
+        <circle cx="16" cy="16" r="2.6" fill="#e9ecf6"/>
+        <path d="M16 7 16 16M24 13 16 16M21 23 16 16M9 22 16 16M7 12 16 16" stroke="#4fe3c1" stroke-opacity="0.5" stroke-width="0.8"/>
+      </svg>
+      <span class="brandcol">
+        <b><span class="k">B</span><span class="exp">eyond the </span><span class="k">O</span><span class="exp">rthodox </span><span class="k">L</span><span class="exp">earning &amp; </span><span class="k">D</span><span class="exp">esign of </span><span class="kai">AI</span></b>
+        <span>ICLR 2027 · Workshop</span>
+      </span>
+    </a>
+    <nav class="links" id="navlinks">
+      <a href="#about">About</a>
+      <a href="#themes">Themes</a>
+      <!-- temporarily hidden <a href="#cfp">Call&nbsp;for&nbsp;Papers</a> -->
+      <a href="#speakers">Speakers</a>
+      <!-- temporarily hidden <a href="#schedule">Schedule</a> -->
+      <a href="#organizers">Organizers</a>
+      <a href="#sponsors">Sponsors</a>
+    </nav>
+    <button class="replay-btn" id="replayBtn" aria-label="Replay the intro animation" title="Replay intro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v5h-5"/></svg>
+    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <button class="theme-toggle shuffle-toggle" id="shuffleToggle" aria-label="Shuffle the background animations" aria-pressed="false" title="Shuffle backgrounds: off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M21 3 13 11"/><path d="M21 16v5h-5"/><path d="M21 21l-6-6"/><path d="M3 4l6 6"/><path d="M3 20 21 3"/></svg>
+    </button>
+    <!-- temporarily hidden <a class="nav-cta" href="#cfp">Submit</a> -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+      <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M0 1h18M0 7h18M0 13h18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top" class="intro">
+
+  <!--PANELS-->
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand">
+      <svg class="glyph" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="width:24px;height:24px">
+        <circle cx="16" cy="16" r="14.2" stroke="#4fe3c1" stroke-opacity="0.35"/>
+        <circle cx="16" cy="7" r="2.1" fill="#4fe3c1"/><circle cx="24" cy="13" r="1.7" fill="#f6a15a"/>
+        <circle cx="21" cy="23" r="1.7" fill="#8f7bff"/><circle cx="9" cy="22" r="1.7" fill="#4fe3c1"/>
+        <circle cx="7" cy="12" r="1.7" fill="#f6a15a"/><circle cx="16" cy="16" r="2.6" fill="#e9ecf6"/>
+      </svg>
+      <span style="display:flex;flex-direction:column"><b>BOLD AI</b><small>Hopefully an ICLR 2027 Workshop</small></span>
+    </div>
+    <div class="flinks">
+      <a href="#about">About</a><a href="#themes">Themes</a><a href="mailto:organizers@unconventional-ai.org">Contact</a>
+    </div>
+    <small>© 2027 · Placeholder details — edit before publishing</small>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Cursor fields — each main section drives a different pointer-
+   reactive animation on one shared full-page canvas. Sections
+   carry a data-mode attribute; the field in view follows you.
+   Every field responds to the cursor, and a click acts on it.
+   ============================================================ */
+/* stamp the theme before anything paints: stored choice, else system preference */
+(function(){
+  const root=document.documentElement;
+  let saved=null; try{saved=localStorage.getItem('uai-theme');}catch(e){}
+  const initial=saved||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark');
+  root.setAttribute('data-theme',initial);
+})();
+
+(function(){
+  const canvas = document.getElementById('swarm');
+  const ctx = canvas.getContext('2d', { alpha:true });
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let CYAN,TEAL,AMBER,VIOLET,GROUND,LIGHT=false,PAL=[];
+  function setThemeColors(isLight){
+    LIGHT=isLight;
+    if(isLight){CYAN='#0e9e86';TEAL='#12b89b';AMBER='#c2661f';VIOLET='#5b46d6';GROUND='238,241,246';}
+    else{CYAN='#4fe3c1';TEAL='#7ef0da';AMBER='#f6a15a';VIOLET='#8f7bff';GROUND='7,8,16';}
+    PAL=[CYAN,CYAN,TEAL,AMBER,VIOLET];
+  }
+  setThemeColors(document.documentElement.getAttribute('data-theme')==='light');
+  let W=0,H=0,DPR=1,t=0,raf=0;
+  const P={x:-9999,y:-9999,px:-9999,py:-9999,active:false,down:false};
+
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  function hexA(hex,a){const h=hex.replace('#','');return 'rgba('+parseInt(h.slice(0,2),16)+','+parseInt(h.slice(2,4),16)+','+parseInt(h.slice(4,6),16)+','+a+')';}
+  function limit(x,y,m){const d=Math.hypot(x,y);return (d>m&&d>0)?[x/d*m,y/d*m]:[x,y];}
+  function fade(a){ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba('+GROUND+','+a+')';ctx.fillRect(0,0,W,H);}
+  const glow=()=>{ctx.globalCompositeOperation=LIGHT?'source-over':'lighter';};
+  const norm=()=>{ctx.globalCompositeOperation='source-over';};
+  function cursorGlow(col,r){if(!P.active)return;const g=ctx.createRadialGradient(P.x,P.y,0,P.x,P.y,r);g.addColorStop(0,hexA(col,.3));g.addColorStop(1,hexA(col,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(P.x,P.y,r,0,6.2832);ctx.fill();}
+
+  //BACKGROUNDS
+
+  /* ---------------- manager ---------------- */
+  const MODES={swarm,limitcycle,network,automata,mouse,crystal,oscillators,orbit,lattice,ripple,comet};
+  const LABELS={swarm:'swarm',limitcycle:'limit cycles',network:'network',automata:'cellular automata',mouse:'mouse',crystal:'crystal lattice',oscillators:'coupled oscillators',orbit:'orbit',lattice:'elastic lattice',ripple:'wavefronts',comet:'comet trails'};
+  const ACCENT={swarm:CYAN,limitcycle:VIOLET,network:AMBER,automata:TEAL,mouse:'#e58fb0',crystal:CYAN,oscillators:CYAN,orbit:VIOLET,lattice:AMBER,ripple:CYAN,comet:AMBER};
+  let current='swarm',mode=MODES.swarm;
+
+  const badge=document.getElementById('modeBadge');
+  const badgeName=document.getElementById('modeName');
+  let badgeTimer;
+  function setMode(name){
+    if(!MODES[name]||name===current)return;
+    current=name;mode=MODES[name];
+    canvas.style.opacity = name==='mouse' ? '0.95' : '';   /* mouse reads crisp; others use CSS default */
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,W,H);
+    mode.enter();
+    if(badge){badgeName.textContent=LABELS[name];badge.querySelector('i').style.background=ACCENT[name];badge.querySelector('i').style.boxShadow='0 0 9px '+ACCENT[name];badge.classList.add('show');clearTimeout(badgeTimer);badgeTimer=setTimeout(()=>badge.classList.remove('show'),2600);}
+  }
+
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=window.innerWidth;H=window.innerHeight;
+    canvas.width=Math.floor(W*DPR);canvas.height=Math.floor(H*DPR);
+    canvas.style.width=W+'px';canvas.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    mode.enter();
+  }
+
+  function setPointer(x,y){P.x=x;P.y=y;P.active=true;}
+  window.addEventListener('mousemove',e=>setPointer(e.clientX,e.clientY),{passive:true});
+  window.addEventListener('mouseleave',()=>{P.active=false;});
+  window.addEventListener('touchmove',e=>{if(e.touches[0])setPointer(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+  window.addEventListener('touchend',()=>{P.active=false;});
+  if(!reduced){
+    window.addEventListener('pointerdown',e=>{P.down=true;setPointer(e.clientX,e.clientY);if(mode.grab)mode.grab(e.clientX,e.clientY);if(mode.click)mode.click(e.clientX,e.clientY);},{passive:true});
+    window.addEventListener('pointerup',()=>{P.down=false;if(mode.release)mode.release();},{passive:true});
+    window.addEventListener('pointercancel',()=>{P.down=false;if(mode.release)mode.release();},{passive:true});
+  }
+
+  let rTimer;
+  window.addEventListener('resize',()=>{clearTimeout(rTimer);rTimer=setTimeout(()=>{resize();if(reduced)staticFrame();},160);});
+
+  // pick the field for whichever section holds the viewport's upper third
+  const secs=Array.prototype.slice.call(document.querySelectorAll('[data-mode]'));
+  // remember each section's designed field so a shuffle can be reversed
+  secs.forEach(s=>{if(!s.dataset.modeDefault)s.dataset.modeDefault=s.getAttribute('data-mode');});
+  // shuffle(on): draw distinct fields at random from the full pool (incl. the
+  // otherwise-unused ones); shuffle(off): restore each section's designed field.
+  // Exposed so the header switch can flip it live. Default is OFF.
+  window.__shuffleModes=function(on){
+    if(on){
+      const pool=Object.keys(MODES);
+      for(let i=pool.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const tmp=pool[i];pool[i]=pool[j];pool[j]=tmp;}
+      secs.forEach((s,i)=>s.setAttribute('data-mode',pool[i%pool.length]));
+    }else{
+      secs.forEach(s=>s.setAttribute('data-mode',s.dataset.modeDefault));
+    }
+    pickMode();
+    if(reduced)staticFrame();
+  };
+  let scheduled=false;
+  function pickMode(){
+    scheduled=false;
+    const mid=window.innerHeight*0.42;let best=null;
+    for(const s of secs){const r=s.getBoundingClientRect();if(r.top<=mid&&r.bottom>=mid){best=s;break;}}
+    if(!best){let dmin=1e9;for(const s of secs){const r=s.getBoundingClientRect();const d=Math.abs((r.top+r.bottom)/2-mid);if(d<dmin){dmin=d;best=s;}}}
+    if(best)setMode(best.getAttribute('data-mode'));
+  }
+  window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(pickMode);}},{passive:true});
+
+  function loop(){t+=16;mode.frame();P.px=P.x;P.py=P.y;raf=requestAnimationFrame(loop);}
+  function staticFrame(){ctx.fillStyle='#070810';ctx.fillRect(0,0,W,H);swarm.enter();for(let i=0;i<48;i++)swarm.frame();}
+
+  // let the theme toggle re-skin the canvas live
+  window.__setCanvasTheme=function(isLight){
+    setThemeColors(isLight);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,W,H);
+    mode.enter();
+    if(reduced)staticFrame();
+  };
+
+  resize();
+  if(reduced){mode=swarm;staticFrame();}
+  else{
+    pickMode();
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);}else{raf=requestAnimationFrame(loop);}});
+    loop();
+  }
+})();
+
+/* mobile nav toggle */
+(function(){
+  const t=document.getElementById('menuToggle');
+  const l=document.getElementById('navlinks');
+  if(!t)return;
+  t.addEventListener('click',()=>{const open=l.classList.toggle('open');t.setAttribute('aria-expanded',open?'true':'false');});
+  l.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{l.classList.remove('open');t.setAttribute('aria-expanded','false');}));
+})();
+
+/* theme toggle */
+(function(){
+  const root=document.documentElement, btn=document.getElementById('themeToggle');
+  if(!btn) return;
+  const cur=()=>root.getAttribute('data-theme')==='light'?'light':'dark';
+  function set(mode){
+    root.setAttribute('data-theme',mode);
+    try{localStorage.setItem('uai-theme',mode);}catch(e){}
+    btn.setAttribute('aria-pressed',mode==='light'?'true':'false');
+    if(window.__setCanvasTheme)window.__setCanvasTheme(mode==='light');
+  }
+  set(cur());
+  btn.addEventListener('click',()=>set(cur()==='light'?'dark':'light'));
+})();
+
+/* shuffle switch: randomize each panel's background field, or keep the designed set.
+   Default OFF; choice remembered per viewer. */
+(function(){
+  const btn=document.getElementById('shuffleToggle');
+  if(!btn) return;
+  let on=false;
+  try{on=localStorage.getItem('uai-shuffle')==='1';}catch(e){}
+  function apply(state,persist){
+    on=state;
+    btn.setAttribute('aria-pressed',on?'true':'false');
+    btn.title='Shuffle backgrounds: '+(on?'on':'off');
+    if(persist){try{localStorage.setItem('uai-shuffle',on?'1':'0');}catch(e){}}
+    if(window.__shuffleModes)window.__shuffleModes(on);
+  }
+  apply(on,false);                 // reflect saved state on load (default OFF)
+  btn.addEventListener('click',()=>apply(!on,true));
+})();
+
+/* BOLD brandmark: big intro that shrinks to the title, then cycles backronyms.
+   Refactored so the replay button can re-run the whole sequence. */
+(function(){
+  const mark=document.getElementById('boldmark'), main=document.getElementById('top');
+  if(!mark||!main) return;
+  const tailEls=Array.prototype.slice.call(mark.querySelectorAll('.tail'));
+  const TAILS=[
+    ['eyond the','rthodox','earning &','esign'],      // Beyond the Orthodox Learning & Design
+    ['eyond the','rthodoxy in','earning &','ynamics'],// Beyond the Orthodoxy in Learning & Dynamics
+    ['rains,','rganisms,','attices &','ynamics'],      // Brains, Organisms, Lattices & Dynamics
+    ['uilding','rthogonal','earning','irections']      // Building Orthogonal Learning Directions
+  ];
+  const setTails=a=>{for(let k=0;k<4;k++)tailEls[k].textContent=a[k];};
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let idx=0, timers=[];
+  const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t;};
+  const clearTimers=()=>{timers.forEach(clearTimeout);timers=[];};
+
+  function cycle(){
+    setTails(TAILS[idx]);                                   // set while collapsed (hidden)
+    requestAnimationFrame(()=>requestAnimationFrame(()=>mark.classList.add('expanded')));
+    later(()=>{
+      mark.classList.remove('expanded');                    // reduce back to B O L D
+      later(()=>{ idx=(idx+1)%TAILS.length; cycle(); }, 1500);
+    }, 3200);
+  }
+
+  function playIntro(){
+    clearTimers();
+    window.scrollTo(0,0);
+    idx=0;
+    mark.classList.remove('expanded');
+    setTails(['','','','']);                                 // collapse to B O L D
+    main.classList.add('intro');                            // hide the rest of the hero
+    mark.style.transition='none';
+    mark.style.transform='';
+    void mark.offsetWidth;
+    if(reducedMotion){ main.classList.remove('intro'); return; }   // reduced motion: just reset
+    const r=mark.getBoundingClientRect();
+    const scale=Math.min(1.7, (window.innerWidth*0.94)/Math.max(r.width,1));
+    const tx=window.innerWidth/2-(r.left+r.width/2), ty=window.innerHeight*0.5-(r.top+r.height/2);
+    mark.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';
+    mark.style.zIndex='40';
+    void mark.offsetWidth;                                   // commit the start state
+    later(()=>{
+      mark.style.transition='transform 0.95s cubic-bezier(.2,.7,.2,1)';
+      mark.style.transform='';
+      later(()=>{ mark.style.zIndex=''; main.classList.remove('intro'); cycle(); }, 1000);
+    }, 1050);
+  }
+
+  const rb=document.getElementById('replayBtn');
+  if(rb) rb.addEventListener('click', playIntro);
+
+  if(reducedMotion){ main.classList.remove('intro'); } else { playIntro(); }
+})();
+
+/* scroll reveals */
+(function(){
+  const els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){els.forEach(e=>e.classList.add('in'));return;}
+  const io=new IntersectionObserver((ents)=>{ents.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
+  els.forEach(e=>io.observe(e));
+})();
+</script>
+
+</body>
+</html>

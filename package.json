@@ -1,0 +1,8 @@
+{
+  "name": "bold-ai-workshop",
+  "description": "BOLD AI workshop site (Beyond the Orthodox Learning & Design of AI)",
+  "private": true,
+  "scripts": {
+    "build": "node build.js"
+  }
+}
