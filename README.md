@@ -1,37 +1,45 @@
-# BOLD AI — workshop site
+# BOLD AI - workshop site
 
-Beyond the Orthodox Learning & Design of AI. A single-page site deployed with GitHub Pages.
+Beyond the Orthodox Learning & Design of AI. A single-page site for GitHub Pages.
 
-## Structure
+## How it fits together
 
-The deployed page is **`index.html`**, which is **generated** — don't edit it by hand.
-Edit the modular source and rebuild:
+`index.html` is a thin shell - header, footer, canvas and the script/style links,
+nothing more. At load it fetches the panels from `panels/` and drops them into
+`<main>`, so **editing a panel changes the site with no build step**.
 
 ```
-template.html          page shell: <head>, styles, header/nav, footer, canvas engine.
-                       Contains two injection markers: <!--PANELS--> and //BACKGROUNDS
-panels/                one <section> per file
-  _order.json          panel order + labels; set "hidden": true to comment a panel out
+index.html            thin shell (header, footer, canvas); loads js/app.js
+css/
+  styles.css          all styles  (edit freely - no build)
+panels/               one <section> per file (edit freely - no build)
+  _order.json           order + labels; set "hidden": true to drop a panel
   hero.html  about.html  themes.html  cfp.html
   speakers.html  schedule.html  organizers.html  sponsors.html
-backgrounds/           one cursor-field animation per file (the shuffle pool)
-  _order.json          order the fields are concatenated in
+backgrounds/          one cursor-field animation per file (the shuffle pool)
+  _order.json           order the fields are bundled in
   swarm.js  limitcycle.js  network.js  automata.js  orbit.js  mouse.js
   lattice.js  ripple.js  comet.js  oscillators.js  crystal.js
-build.js               bundler: template + panels + backgrounds -> index.html
+js/
+  engine.js           canvas engine + UI + panel loader (source; has //BACKGROUNDS marker)
+  app.js              BUILT: engine.js with the backgrounds injected (loaded by index.html)
+build.js              bundles js/engine.js + backgrounds/ -> js/app.js
 ```
 
-## Build
+## Editing
+
+- **Panels** (`panels/*.html`) and **styles** (`css/styles.css`): edit and refresh.
+  No build. `cfp` and `schedule` are `"hidden": true` in `panels/_order.json`;
+  flip the flag to show them.
+- **Background fields** (`backgrounds/*.js`) or the **engine** (`js/engine.js`):
+  run `node build.js` (or `npm run build`) to regenerate `js/app.js`, then commit it.
+
+## Previewing locally
+
+Panels are fetched over http, so open the site through a server, not file://:
 
 ```
-node build.js        # or: npm run build
+python3 -m http.server 8000     # then visit http://localhost:8000
 ```
 
-Re-run after editing any source file, then commit the regenerated `index.html`.
-
-## Notes
-
-- Background fields are concatenated *inside* the canvas engine's closure, so each
-  `backgrounds/*.js` file may use the shared engine scope (ctx, W, H, P, colours…).
-- `cfp` and `schedule` panels are currently `"hidden": true` in `panels/_order.json`
-  (kept in source, commented out of the built page).
+GitHub Pages already serves over https, so the deployed site just works.

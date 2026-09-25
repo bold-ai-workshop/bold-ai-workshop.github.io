@@ -1,45 +1,26 @@
 #!/usr/bin/env node
 /*
- * build.js — bundles the modular source into a single deployable index.html.
+ * build.js — assembles js/app.js from js/engine.js + backgrounds/*.js.
  *
- *   Sources:
- *     template.html      page shell (head, styles, header, footer, engine JS)
- *                        with two markers:  <!--PANELS-->  and  //BACKGROUNDS
- *     panels/<name>.html one <section> per file (order + labels in panels/_order.json)
- *     backgrounds/<name>.js  one cursor-field per file (order in backgrounds/_order.json)
+ * The panels do NOT need building: index.html fetches panels/ at runtime, so
+ * editing a panel (panels/*.html) or the styles (css/styles.css) shows up on a
+ * plain refresh. Re-run this ONLY after editing js/engine.js or a background
+ * field in backgrounds/, then commit the regenerated js/app.js.
  *
- *   Run:  node build.js       ->  writes index.html
- *
- * GitHub Pages serves index.html directly; re-run this after editing any source file.
+ *   Run:  node build.js      (or: npm run build)
  */
 const fs = require('fs');
 const path = require('path');
 const ROOT = __dirname;
 const rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 
-const template   = rd('template.html');
-const panelOrder = JSON.parse(rd('panels/_order.json'));
-const bgOrder    = JSON.parse(rd('backgrounds/_order.json'));
+const engine = rd('js/engine.js');
+const order  = JSON.parse(rd('backgrounds/_order.json'));
 
-// Panels — in document order; hidden ones are wrapped in an HTML comment so they
-// stay in the source but don't render. Flip "hidden" in panels/_order.json to toggle.
-const panelsBlock = panelOrder.map(({ file, label, hidden }) => {
-  const body = rd(`panels/${file}.html`).replace(/\n+$/, '');
-  return hidden
-    ? `  <!-- ${label} (temporarily hidden)\n${body}\n  -->`
-    : `  <!-- ${label} -->\n${body}`;
-}).join('\n\n');
+// Background fields are concatenated into the engine's closure at the //BACKGROUNDS
+// marker, so each backgrounds/*.js may use the shared engine scope (ctx, W, H, P...).
+const bg = order.map(n => rd(`backgrounds/${n}.js`).replace(/\n+$/, '')).join('\n\n');
 
-// Background fields — concatenated inside the canvas engine's closure, so each file
-// may use the shared engine scope (ctx, W, H, P, colours, …). Order must precede MODES.
-const bgBlock = bgOrder
-  .map(name => rd(`backgrounds/${name}.js`).replace(/\n+$/, ''))
-  .join('\n\n');
-
-// Function replacements avoid `$`-pattern interpretation in the injected code.
-const out = template
-  .replace('  <!--PANELS-->', () => panelsBlock)
-  .replace('  //BACKGROUNDS', () => bgBlock);
-
-fs.writeFileSync(path.join(ROOT, 'index.html'), out);
-console.log(`built index.html (${out.length} bytes) — ${panelOrder.length} panels, ${bgOrder.length} backgrounds`);
+const out = engine.replace('  //BACKGROUNDS', () => bg);
+fs.writeFileSync(path.join(ROOT, 'js/app.js'), out);
+console.log(`built js/app.js (${out.length} bytes) - ${order.length} backgrounds`);
