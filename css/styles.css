@@ -200,6 +200,7 @@
   .boldmark .tail{
     font-size:.32em; font-weight:400; color:var(--soft);
     max-width:0; opacity:0; white-space:nowrap; overflow:hidden;
+    padding-block:.12em; margin-block:-.12em;
     transition:max-width .8s cubic-bezier(.4,.7,.2,1), opacity .55s ease;
   }
   .boldmark.expanded .tail{max-width:20ch; opacity:1}

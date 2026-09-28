@@ -14,7 +14,7 @@
         if(P.active)paint(P.x,P.y,2);
         if(++acc>=STEP){acc=0;tick();}
         glow();
-        for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c;if(!grid[i])continue;const x=c*cell,y=r*cell,a=age[i];const col=a<=1?CYAN:(a<5?TEAL:(a<12?AMBER:VIOLET));const cxp=x+cell/2,cyp=y+cell/2,s=cell*.8;const g=ctx.createRadialGradient(cxp,cyp,0,cxp,cyp,s);g.addColorStop(0,hexA(col,.85));g.addColorStop(.5,hexA(col,.35));g.addColorStop(1,hexA(col,0));ctx.fillStyle=g;ctx.fillRect(cxp-s,cyp-s,s*2,s*2);ctx.fillStyle=hexA(col,.95);ctx.fillRect(x+cell*.3,y+cell*.3,cell*.4,cell*.4);}
+        for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c;if(!grid[i])continue;const x=c*cell,y=r*cell,a=age[i];const col=a<=1?CYAN:(a<5?TEAL:(a<12?AMBER:VIOLET));const cxp=x+cell/2,cyp=y+cell/2,s=cell*.5;const g=ctx.createRadialGradient(cxp,cyp,0,cxp,cyp,s);g.addColorStop(0,hexA(col,.36));g.addColorStop(.5,hexA(col,.12));g.addColorStop(1,hexA(col,0));ctx.fillStyle=g;ctx.fillRect(cxp-s,cyp-s,s*2,s*2);ctx.fillStyle=hexA(col,.42);ctx.fillRect(x+cell*.3,y+cell*.3,cell*.4,cell*.4);}
         cursorGlow(CYAN,cell*2.6);norm();
       }
     };

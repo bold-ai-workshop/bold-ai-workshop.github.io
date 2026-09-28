@@ -227,7 +227,7 @@ window.__initUI=function(){
   const rb=document.getElementById('replayBtn');
   if(rb) rb.addEventListener('click', playIntro);
 
-  if(reducedMotion){ main.classList.remove('intro'); } else { playIntro(); }
+  if(reducedMotion||window.location.hash){ main.classList.remove('intro'); } else { playIntro(); }
 })();
 
 /* scroll reveals */
@@ -236,6 +236,36 @@ window.__initUI=function(){
   if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){els.forEach(e=>e.classList.add('in'));return;}
   const io=new IntersectionObserver((ents)=>{ents.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
   els.forEach(e=>io.observe(e));
+})();
+
+/* in-page links: panels are injected at runtime, so resolve their targets only
+   after injection and leave room for the sticky header. Also restores direct
+   links such as /#about, whose target did not exist during initial parsing. */
+(function(){
+  const nav=document.querySelector('header.nav');
+  function go(hash,smooth){
+    if(!hash||hash==='#')return false;
+    let id;
+    try{id=decodeURIComponent(hash.slice(1));}catch(e){id=hash.slice(1);}
+    const target=document.getElementById(id);
+    if(!target)return false;
+    const gap=(nav?nav.offsetHeight:0)+12;
+    const top=Math.max(0,target.getBoundingClientRect().top+window.scrollY-gap);
+    window.scrollTo({top,behavior:smooth?'smooth':'instant'});
+    return true;
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+    const hash=a.getAttribute('href');
+    if(!go(hash,true))return;
+    e.preventDefault();
+    if(window.location.hash!==hash)history.pushState(null,'',hash);
+  }));
+  window.addEventListener('popstate',()=>go(window.location.hash,false));
+  if(window.location.hash){
+    const restore=()=>requestAnimationFrame(()=>go(window.location.hash,false));
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(restore);
+    else restore();
+  }
 })();
 
 };  /* end __initUI */
