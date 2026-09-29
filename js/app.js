@@ -154,7 +154,7 @@
         if(P.active)paint(P.x,P.y,2);
         if(++acc>=STEP){acc=0;tick();}
         glow();
-        for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c;if(!grid[i])continue;const x=c*cell,y=r*cell,a=age[i];const col=a<=1?CYAN:(a<5?TEAL:(a<12?AMBER:VIOLET));const cxp=x+cell/2,cyp=y+cell/2,s=cell*.8;const g=ctx.createRadialGradient(cxp,cyp,0,cxp,cyp,s);g.addColorStop(0,hexA(col,.85));g.addColorStop(.5,hexA(col,.35));g.addColorStop(1,hexA(col,0));ctx.fillStyle=g;ctx.fillRect(cxp-s,cyp-s,s*2,s*2);ctx.fillStyle=hexA(col,.95);ctx.fillRect(x+cell*.3,y+cell*.3,cell*.4,cell*.4);}
+        for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c;if(!grid[i])continue;const x=c*cell,y=r*cell,a=age[i];const col=a<=1?CYAN:(a<5?TEAL:(a<12?AMBER:VIOLET));const cxp=x+cell/2,cyp=y+cell/2,s=cell*.8;const g=ctx.createRadialGradient(cxp,cyp,0,cxp,cyp,s);g.addColorStop(0,hexA(col,.36));g.addColorStop(.5,hexA(col,.12));g.addColorStop(1,hexA(col,0));ctx.fillStyle=g;ctx.fillRect(cxp-s,cyp-s,s*2,s*2);ctx.fillStyle=hexA(col,.42);ctx.fillRect(x+cell*.3,y+cell*.3,cell*.4,cell*.4);}
         cursorGlow(CYAN,cell*2.6);norm();
       }
     };
@@ -621,7 +621,7 @@ window.__initUI=function(){
   const rb=document.getElementById('replayBtn');
   if(rb) rb.addEventListener('click', playIntro);
 
-  if(reducedMotion){ main.classList.remove('intro'); } else { playIntro(); }
+  if(reducedMotion||window.location.hash){ main.classList.remove('intro'); } else { playIntro(); }
 })();
 
 /* scroll reveals */
@@ -630,6 +630,36 @@ window.__initUI=function(){
   if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){els.forEach(e=>e.classList.add('in'));return;}
   const io=new IntersectionObserver((ents)=>{ents.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
   els.forEach(e=>io.observe(e));
+})();
+
+/* in-page links: panels are injected at runtime, so resolve their targets only
+   after injection and leave room for the sticky header. Also restores direct
+   links such as /#about, whose target did not exist during initial parsing. */
+(function(){
+  const nav=document.querySelector('header.nav');
+  function go(hash,smooth){
+    if(!hash||hash==='#')return false;
+    let id;
+    try{id=decodeURIComponent(hash.slice(1));}catch(e){id=hash.slice(1);}
+    const target=document.getElementById(id);
+    if(!target)return false;
+    const gap=(nav?nav.offsetHeight:0)+12;
+    const top=Math.max(0,target.getBoundingClientRect().top+window.scrollY-gap);
+    window.scrollTo({top,behavior:smooth?'smooth':'instant'});
+    return true;
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+    const hash=a.getAttribute('href');
+    if(!go(hash,true))return;
+    e.preventDefault();
+    if(window.location.hash!==hash)history.pushState(null,'',hash);
+  }));
+  window.addEventListener('popstate',()=>go(window.location.hash,false));
+  if(window.location.hash){
+    const restore=()=>requestAnimationFrame(()=>go(window.location.hash,false));
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(restore);
+    else restore();
+  }
 })();
 
 };  /* end __initUI */
