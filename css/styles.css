@@ -457,3 +457,5 @@
   @media (max-width:1000px){ #panel .panel-people{grid-template-columns:repeat(3,1fr)} }
   @media (max-width:620px){ #panel .panel-people{grid-template-columns:repeat(2,1fr)} }
   @media (max-width:400px){ #panel .panel-people{grid-template-columns:1fr} }
+  .fact .v .trk{display:block}
+  .fact .v .trk + .est{display:inline-block; margin-top:5px}

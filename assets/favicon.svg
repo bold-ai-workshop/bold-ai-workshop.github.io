@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <radialGradient id="tile" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.88"/>
+      <stop offset="60%" stop-color="#f1f3fb" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#dfe3ef" stop-opacity="0.55"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4fe3c1" stop-opacity="0.20"/>
+      <stop offset="55%" stop-color="#8f7bff" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#8f7bff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="url(#tile)"/>
+  <g transform="translate(16 16) scale(0.78) translate(-16 -16)">
+    <circle cx="16" cy="16" r="13.5" fill="url(#halo)"/>
+    <circle cx="16" cy="16" r="14.2" fill="none" stroke="#2fb9a0" stroke-opacity="0.30"/>
+    <path d="M16 7 16 16M24 13 16 16M21 23 16 16M9 22 16 16M7 12 16 16" stroke="#6b7a94" stroke-opacity="0.32" stroke-width="0.8"/>
+    <circle cx="16" cy="7" r="2.1" fill="#4fe3c1" fill-opacity="0.9"/>
+    <circle cx="24" cy="13" r="1.7" fill="#f6a15a" fill-opacity="0.9"/>
+    <circle cx="21" cy="23" r="1.7" fill="#8f7bff" fill-opacity="0.9"/>
+    <circle cx="9" cy="22" r="1.7" fill="#4fe3c1" fill-opacity="0.9"/>
+    <circle cx="7" cy="12" r="1.7" fill="#f6a15a" fill-opacity="0.9"/>
+    <circle cx="16" cy="16" r="2.8" fill="#ffffff"/>
+  </g>
+</svg>

@@ -227,7 +227,9 @@ window.__initUI=function(){
   const rb=document.getElementById('replayBtn');
   if(rb) rb.addEventListener('click', playIntro);
 
-  if(reducedMotion||window.location.hash){ main.classList.remove('intro'); } else { playIntro(); }
+  if(reducedMotion){ main.classList.remove('intro'); }
+  else if(window.location.hash && window.location.hash!=='#top'){ main.classList.remove('intro'); cycle(); } // deep link: keep scroll, still cycle the title
+  else { playIntro(); }
 })();
 
 /* scroll reveals */
