@@ -459,3 +459,13 @@
   @media (max-width:400px){ #panel .panel-people{grid-template-columns:1fr} }
   .fact .v .trk{display:block}
   .fact .v .trk + .est{display:inline-block; margin-top:5px}
+
+  /* area chairs: compact grid */
+  #organizers .people.ac{grid-template-columns:repeat(5,1fr)}
+  #organizers .people.ac .person{align-items:center; text-align:center; padding:16px 12px; gap:3px}
+  #organizers .people.ac .avatar{width:84px; height:84px; margin:0 auto 12px}
+  #organizers .people.ac .name{font-size:14.5px; line-height:1.25}
+  #organizers .people.ac .aff{font-size:12px}
+  @media (max-width:1000px){ #organizers .people.ac{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:620px){ #organizers .people.ac{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:400px){ #organizers .people.ac{grid-template-columns:1fr} }
