@@ -468,3 +468,8 @@
   #organizers .people.ac .aff{font-size:12px}
   @media (max-width:620px){ #organizers .people.ac{grid-template-columns:repeat(2,1fr)} }
   @media (max-width:400px){ #organizers .people.ac{grid-template-columns:1fr} }
+
+  /* organizers: one row of five; organizers over senior organizers when narrower */
+  #organizers .people.org{grid-template-columns:repeat(5,1fr)}
+  @media (max-width:1080px){ #organizers .people.org{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:560px){ #organizers .people.org{grid-template-columns:1fr} }
